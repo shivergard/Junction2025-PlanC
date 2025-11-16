@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanC: Risky vibes (Economic Game)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 PlanC: Risky vibes</h1>
+            <p class="subtitle">Economic Game - Test your financial literacy and make smart decisions!</p>
+        </header>
+
+        <!-- Top Action Bar -->
+        <div class="top-actions-bar">
+            <div class="action-group">
+                <h4>Jobs</h4>
+                <button id="btn-start-work" class="btn btn-primary" disabled>Start Work</button>
+                <button id="btn-stop-work" class="btn btn-warning" disabled style="display: none;">Stop Work</button>
+                <button id="btn-quit-job" class="btn btn-warning" disabled>Quit Job</button>
+            </div>
+            <div class="action-group">
+                <h4>Apartment</h4>
+                <button id="btn-quit-apartment" class="btn btn-warning" disabled>Quit Apartment</button>
+            </div>
+            <div class="action-group">
+                <h4>Market - Buy</h4>
+                <select id="market-item-buy" class="input">
+                    <option value="">Select item...</option>
+                </select>
+                <button id="btn-buy-item" class="btn btn-success">Buy Item</button>
+            </div>
+            <div class="action-group">
+                <h4>Market - Sell</h4>
+                <select id="market-item-sell" class="input">
+                    <option value="">Select item...</option>
+                </select>
+                <button id="btn-sell-item" class="btn btn-warning" disabled>Sell Item</button>
+            </div>
+            <div class="action-group">
+                <h4>AI Offers</h4>
+                <button id="btn-generate-trickery" class="btn btn-danger">Get Trickery Offer</button>
+                <button id="btn-generate-good" class="btn btn-info">Get Good Offer</button>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Left Sidebar: Game State -->
+            <div class="sidebar game-state">
+                <h2>Game State</h2>
+                <div class="stat-card">
+                    <div class="stat">
+                        <label>Money:</label>
+                        <span id="money" class="money">€0.00</span>
+                    </div>
+                    <div class="stat">
+                        <label>Health:</label>
+                        <span id="health" class="health">100</span>
+                        <span id="hospital-status" style="display: none; color: #dc3545; font-weight: bold; margin-left: 10px;">🏥 In Hospital</span>
+                    </div>
+                    <div class="stat">
+                        <label>Energy:</label>
+                        <span id="energy" class="energy">100</span>
+                    </div>
+                    <div class="stat">
+                        <label>Reputation:</label>
+                        <span id="reputation" class="reputation">0</span>
+                    </div>
+                    <div class="stat" id="invite-code-section" style="display: none;">
+                        <label>Invite Code:</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span id="invite-code-display" style="font-weight: bold; font-family: monospace; font-size: 1.1em; color: #007bff;"></span>
+                            <button id="btn-copy-invite" class="btn btn-sm btn-primary" title="Copy invite code">📋 Copy</button>
+                            <button id="btn-share-invite" class="btn btn-sm btn-success" title="Share invite code">🔗 Share</button>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <label>Date:</label>
+                        <span id="current-date">2000-01-01</span>
+                    </div>
+                    <div class="stat">
+                        <label>Time:</label>
+                        <span id="current-time">00:00</span>
+                    </div>
+                    <div class="stat">
+                        <label>Job:</label>
+                        <span id="job">None</span>
+                    </div>
+                    <div class="stat">
+                        <label>Apartment:</label>
+                        <span id="apartment">None</span>
+                    </div>
+                    <div class="stat" id="work-schedule" style="display: none;">
+                        <label>Work Schedule:</label>
+                        <span id="work-schedule-time"></span>
+                    </div>
+                    <div class="stat" id="work-status" style="display: none;">
+                        <label>Work Status:</label>
+                        <span id="work-timer" class="work-timer">Working...</span>
+                    </div>
+                </div>
+
+                <div id="health-warning" class="warning-box" style="display: none;">
+                    <strong>⚠️ Warning:</strong> You don't have an apartment! You will lose 2 health each night. Rent an apartment to avoid this!
+                </div>
+                <div id="hospital-info" class="warning-box" style="display: none; background: #fff3cd; border-color: #ffc107;">
+                    <strong>🏥 Hospital Stay</strong>
+                    <p>You are in the hospital recovering. Cost: €100/hour. You'll be released when your health reaches 20.</p>
+                </div>
+                <div id="game-over-info" class="warning-box" style="display: none; background: #f8d7da; border-color: #dc3545;">
+                    <strong>⚠️ Game Over</strong>
+                    <p id="game-over-reason"></p>
+                </div>
+
+                <div class="section">
+                    <h3>Investments</h3>
+                    <div id="investments" class="investments">
+                        <p class="empty">No investments yet</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Inventory</h3>
+                    <div id="inventory" class="inventory">
+                        <p class="empty">No items</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center: Tabbed Content -->
+            <div class="content-area">
+                <div class="main-tabs">
+                    <button class="main-tab active" data-tab="dashboard">Dashboard</button>
+                    <button class="main-tab" data-tab="trading">Trading</button>
+                    <button class="main-tab" data-tab="work">Work</button>
+                    <button class="main-tab" data-tab="real-estate">Real Estate</button>
+                    <button class="main-tab" data-tab="offers">All Offers</button>
+                    <button class="main-tab" data-tab="agreements">Agreements</button>
+                    <button class="main-tab" data-tab="chat">Chat</button>
+                    <button class="main-tab" data-tab="history">History</button>
+                </div>
+
+                <!-- Dashboard Tab -->
+                <div id="dashboard-panel" class="main-tab-content active">
+                    <h2>Dashboard</h2>
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <h3>Financial Overview</h3>
+                            <p>Money: <span id="dashboard-money">€0.00</span></p>
+                            <p>Investments Value: <span id="dashboard-investments">€0.00</span></p>
+                            <p>Total Assets: <span id="dashboard-total">€0.00</span></p>
+                        </div>
+                        <div class="dashboard-card">
+                            <h3>Health & Energy</h3>
+                            <p>Health: <span id="dashboard-health">100</span>/100</p>
+                            <p>Energy: <span id="dashboard-energy">100</span>/100</p>
+                        </div>
+                        <div class="dashboard-card">
+                            <h3>Current Status</h3>
+                            <p>Job: <span id="dashboard-job">None</span></p>
+                            <p>Apartment: <span id="dashboard-apartment">None</span></p>
+                            <p>Reputation: <span id="dashboard-reputation">0</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trading Tab -->
+                <div id="trading-panel" class="main-tab-content">
+                    <h2>Trading</h2>
+                    <div class="trading-section">
+                        <h3>Stocks</h3>
+                        <div class="trading-controls">
+                            <select id="stock-symbol" class="input">
+                                <option value="">Select stock...</option>
+                            </select>
+                            <input type="number" id="stock-shares" class="input" placeholder="Shares" min="1">
+                            <button id="btn-buy-stock" class="btn btn-success">Buy Stock</button>
+                            <button id="btn-sell-stock" class="btn btn-warning">Sell Stock</button>
+                        </div>
+                        <div id="stock-offers" class="offers-list">
+                            <p class="empty">No stock offers available</p>
+                        </div>
+                    </div>
+                    <div class="trading-section">
+                        <h3>Crypto</h3>
+                        <div class="trading-controls">
+                            <select id="crypto-symbol" class="input">
+                                <option value="">Select crypto...</option>
+                            </select>
+                            <input type="number" id="crypto-amount" class="input" placeholder="Amount" min="0.01" step="0.01">
+                            <button id="btn-buy-crypto" class="btn btn-success">Buy Crypto</button>
+                            <button id="btn-sell-crypto" class="btn btn-warning">Sell Crypto</button>
+                        </div>
+                        <div id="crypto-offers" class="offers-list">
+                            <p class="empty">No crypto offers available</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Work Tab -->
+                <div id="work-panel" class="main-tab-content">
+                    <h2>Work</h2>
+                    <div id="job-offers-list" class="offers-list">
+                        <p class="empty">No job offers available. New offers will appear automatically!</p>
+                    </div>
+                </div>
+
+                <!-- Real Estate Tab -->
+                <div id="real-estate-panel" class="main-tab-content">
+                    <h2>Real Estate</h2>
+                    <div id="apartment-offers-list" class="offers-list">
+                        <p class="empty">No apartment offers available. New offers will appear automatically!</p>
+                    </div>
+                </div>
+
+                <!-- All Offers Tab -->
+                <div id="offers-panel" class="main-tab-content">
+                    <h2>All Offers</h2>
+                    <div class="offers-section">
+                        <h3>Job Offers</h3>
+                        <div id="all-job-offers" class="offers-list">
+                            <p class="empty">No job offers</p>
+                        </div>
+                    </div>
+                    <div class="offers-section">
+                        <h3>Apartment Offers</h3>
+                        <div id="all-apartment-offers" class="offers-list">
+                            <p class="empty">No apartment offers</p>
+                        </div>
+                    </div>
+                    <div class="offers-section">
+                        <h3>Other Offers</h3>
+                        <div id="all-other-offers" class="offers-list">
+                            <p class="empty">No other offers</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agreements Tab -->
+                <div id="agreements-panel" class="main-tab-content">
+                    <h2>Active Agreements</h2>
+                    <div id="agreements-list" class="offers-list">
+                        <p class="empty">No active agreements. Agreements are created when you accept recurring offers.</p>
+                    </div>
+                </div>
+
+                <!-- Chat Tab -->
+                <div id="chat-panel" class="main-tab-content">
+                    <h2>Chat with Guide</h2>
+                    <div class="chat-hint-box" style="background: #e3f2fd; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #2196f3;">
+                        <strong>💡 Tip:</strong> You can create offers, agreements, or sell items to other players in your network! 
+                        Just describe what you want to offer in the chat. Examples:
+                        <ul style="margin: 8px 0 0 20px; padding: 0;">
+                            <li>"I want to sell my laptop for €500"</li>
+                            <li>"I'm offering a monthly fitness subscription for €30/month"</li>
+                            <li>"I have a one-time service offer: tutoring for €50"</li>
+                        </ul>
+                    </div>
+                    <div id="chat-messages" class="chat-messages"></div>
+                    <div class="chat-input">
+                        <input type="text" id="chat-input" class="input" placeholder="Ask for advice or create an offer...">
+                        <button id="btn-send-chat" class="btn btn-primary">Send</button>
+                    </div>
+                </div>
+
+                <!-- History Tab -->
+                <div id="history-panel" class="main-tab-content">
+                    <h2>History</h2>
+                    <div id="history-list" class="history-list">
+                        <p class="empty">No history yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="message" class="message"></div>
+    </div>
+
+    <!-- Story Introduction Modal -->
+    <div id="story-modal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto; margin: 5% auto; padding: 25px 40px;">
+            <h2 style="margin-top: 0; margin-bottom: 15px;">🎭 The Promise</h2>
+            <div style="line-height: 1.6; color: #444; font-size: 15px; margin: 15px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <p style="margin-bottom: 12px;">
+                        It was New Year's Eve, and you had just turned 18. The celebration was in full swing, 
+                        drinks were flowing, and the atmosphere was electric. Surrounded by friends and family, 
+                        you felt invincible.
+                    </p>
+                    <p style="margin-bottom: 12px;">
+                        In a moment of liquid courage, fueled by the festive spirit and perhaps one too many 
+                        drinks, you made a bold declaration. You stood up, raised your glass, and announced 
+                        to everyone:
+                    </p>
+                </div>
+                <div>
+                    <p style="margin: 0 0 12px 0; padding: 12px; background-color: #fff3cd; border-left: 4px solid #ffc107; font-style: italic; font-weight: 500; font-size: 14px;">
+                        "I'll be better than all of you! I'll become a millionaire before I turn 25, 
+                        and I'll live all my dreams! Watch me!"
+                    </p>
+                    <p style="margin-bottom: 12px;">
+                        The room erupted in cheers and laughter. Some were impressed, others skeptical, 
+                        but everyone heard your promise.
+                    </p>
+                </div>
+            </div>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #eee; grid-column: 1 / -1;">
+                <p style="margin-bottom: 10px; color: #666; font-size: 14px;">
+                    Now, the morning after, you're sober. The reality hits you like a cold shower. 
+                    You realize it was too big of a bragging, an impossible promise made in a moment 
+                    of overconfidence. But there's no way back from what you said. Everyone remembers. 
+                    Everyone is watching.
+                </p>
+                <p style="margin-top: 10px; font-weight: 600; color: #764ba2; font-size: 15px;">
+                    The clock is ticking. You have 7 years to prove yourself, or face the shame of 
+                    broken promises. Your journey begins now...
+                </p>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; padding-top: 15px; border-top: 2px solid #eee;">
+                <button id="btn-continue-story" class="btn btn-primary" style="padding: 10px 25px; font-size: 15px;">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Offer Message Modal -->
+    <div id="offer-message-modal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <h2>💬 Messages</h2>
+            <div id="offer-message-modal-header" style="margin-bottom: 15px;">
+                <h3 id="offer-message-title" style="margin: 0; color: #333;"></h3>
+                <p id="offer-message-description" style="margin: 5px 0 0 0; color: #666; font-size: 0.9em;"></p>
+            </div>
+            <div id="offer-message-list" class="messages-list" style="max-height: 300px; overflow-y: auto; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 6px;">
+                <!-- Messages will be inserted here -->
+            </div>
+            <div class="offer-message-input" style="display: flex; gap: 8px;">
+                <input type="text" id="offer-message-input-field" placeholder="Type your message..." class="message-input" 
+                       style="flex: 1;" onkeypress="if(event.key === 'Enter') sendOfferMessageFromModal()" />
+                <button class="btn btn-primary btn-sm" onclick="sendOfferMessageFromModal()">Send</button>
+            </div>
+            <div style="margin-top: 15px; display: flex; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeOfferMessageModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invite Code Modal -->
+    <div id="invite-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>🎮 Join PlanC: Risky vibes</h2>
+            <p>Enter an invite code to join the game, or start as the first player.</p>
+            <div style="margin: 20px 0;">
+                <label for="invite-code-input" style="display: block; margin-bottom: 8px; font-weight: 600;">Invite Code (optional for first player):</label>
+                <input type="text" id="invite-code-input" class="input" placeholder="Enter invite code (leave empty if first player)" style="width: 100%; padding: 10px; font-size: 16px; text-transform: uppercase;" maxlength="8">
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button id="btn-start-game" class="btn btn-primary">Start Game</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

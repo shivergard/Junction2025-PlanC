@@ -1,0 +1,26 @@
+# Configuration files with sensitive data
+config.json
+
+# Environment files
+.env
+
+# Build artifacts
+*.exe
+planc-*
+!planc.exe
+
+# Logs
+*.log
+chatgpt_logs.txt
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
